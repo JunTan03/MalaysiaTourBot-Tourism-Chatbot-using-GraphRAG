@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MalaysiaTourBot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; 
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #d0e8ff, #ffffff);
+            color: #004080;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body > header {
+            flex-shrink: 0;
+            width: 100%;
+            background-color: #0077cc;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .chat-wrapper {
+            flex-grow: 1;            
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: none;          
+            margin: 0;
+            background: #fff;
+            border-radius: 0;         
+            padding: 0;                
+            box-sizing: border-box;
+            height: 100%;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #fdfdfd;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 0;
+        }
+
+        .chat-input {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #fff;
+            box-sizing: border-box;
+            border-top: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+
+        #userInput {
+            flex-grow: 1;
+            height: 50px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 18px;
+            resize: none;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        header img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            background-color: #fdfdfd;
+            width: 100%; 
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+            max-width: 100%;
+            line-height: 1.5;
+        }
+
+                    
+        .user, .bot {
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+            max-width: 90%;      
+            display: inline-block;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background-color: #d9f1ff;
+            color: #004080;
+            align-self: flex-end;
+            font-size: 18px;
+        }
+
+        .bot {
+            background-color: #fff3db;
+            color: #7a4a00;
+        }
+
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user {
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .bot {
+            align-self: flex-start;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 18px;
+        }
+
+        .typing {
+            font-style: italic;
+            color: #999;
+        }
+
+        @keyframes dots {
+            0% { content: "."; }
+            25% { content: ".."; }
+            50% { content: "..."; }
+            75% { content: "...."; }
+            100% { content: "."; }
+        }
+
+        .bot-thinking::after {
+            content: "...";
+            animation: blinkDots 1.2s steps(4, end) infinite;
+        }
+
+        @keyframes blinkDots {
+            0% { content: ""; }
+            33% { content: "."; }
+            66% { content: ".."; }
+            100% { content: "..."; }
+        }
+
+      .clear-memory-button {
+            margin: 10px;
+            align-self: center;
+            background-color: #ff9933;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .clear-memory-button:hover {
+            background-color: #ff7700;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .suggestion-pool {
+            display: flex;
+            justify-content: center;
+            flex-wrap: nowrap;
+            gap: 10px;
+            overflow-x: auto;      
+            padding: 10px 20px;
+            background-color: #fff0cc;
+            box-sizing: border-box;
+            max-width: 100%;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .suggestion-pool span {
+            background-color: #fff0cc;
+            color: #cc6600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 1px 2px 5px rgba(0,0,0,0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        .suggestion-pool span:hover {
+            background-color: #ffe199;
+        }
+
+        .answer-images-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: nowrap; 
+            overflow-x: auto;  
+        }
+
+        .answer-image-item img {
+            width: 200px;       
+            height: 200px;    
+            object-fit: cover; 
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .answer-text {
+            white-space: pre-wrap;
+            font-size: 18px;
+            color: #4a4a4a;
+        }
+
+    </style>
+</head>
+<body>
+<header>
+    <img src="/static/logo.png" alt="Logo">
+    <h2>MalaysiaTourBot 🇲🇾</h2>
+</header>
+<div class="chat-wrapper">
+<button class="clear-memory-button" onclick="resetMemory()">🧠 Clear Chat and Memory</button>
+<div class="chat-box" id="chatBox"></div>
+<div class="suggestion-pool" id="suggestionPool"></div>
+
+<div class="chat-input">
+    <textarea id="userInput" placeholder="Tanya sesuatu tentang pelancongan di Malaysia..."></textarea>
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+
+</div>
+</div>
+<script>
+    function sendMessage() {
+        const message = $("#userInput").val().trim();
+        if (!message) return;
+
+        const chatBox = $("#chatBox");
+        chatBox.append(`<div class='message user'><b>You:</b> ${message}</div>`);
+        $("#userInput").val("");
+        chatBox.scrollTop(chatBox[0].scrollHeight);
+
+        const botTyping = $(`<div class='message bot typing'><b>MalaysiaTourBot:</b> <span class="bot-thinking"></span></div>`);
+        chatBox.append(botTyping);
+        chatBox.scrollTop(chatBox[0].scrollHeight);
+
+        $.ajax({
+            url: "/chat",
+            type: "POST",
+            data: JSON.stringify({ message }),
+            contentType: "application/json",
+            dataType: "json",
+            success: function (data) {
+                botTyping.remove();
+                chatBox.append(`<div class='message bot'><b>MalaysiaTourBot:</b> ${data.response}</div>`);
+                chatBox.scrollTop(chatBox[0].scrollHeight);
+            },
+            error: function (xhr) {
+                botTyping.remove();
+                const errorMsg = xhr.responseJSON?.error || "Unexpected error occurred.";
+                chatBox.append(`<div class='message bot'><b>Error:</b> ${errorMsg}</div>`);
+                chatBox.scrollTop(chatBox[0].scrollHeight);
+            }
+        });
+    }
+
+    $("#userInput").keypress(function (e) {
+        if (e.which === 13 && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+function useSuggestion(elem) {
+    const suggestion = elem.textContent;
+    $("#userInput").val(suggestion);
+
+    $("#suggestionPool span").css("pointer-events", "none").css("opacity", "0.5");
+
+    sendMessage(() => {
+        $("#suggestionPool span").css("pointer-events", "auto").css("opacity", "1");
+    });
+}
+
+
+document.getElementById("userInput").addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();   
+    sendMessage();     
+  }
+});
+
+    const suggestionPool = [
+        "Apakah pantai yang sesuai untuk bercuti di Terengganu?",
+        "Cadangan tempat pelancongan di Melaka?",
+        "Cadangan tempat pelancongan di Johor?",
+        "Cadangan tempat pelancongan di Sabah?",
+        "Cadangan tempat pelancongan di Sarawak?",
+        "Cadangan tempat pelancongan di Selangor?",
+        "Cadangan tempat pelancongan di Labuan?",
+        "Cadangan tempat pelancongan di Kuala Lumpur?",
+        "Cadangan tempat pelancongan di Putrajaya?",
+        "Cadangan tempat pelancongan di Penang?",
+        "Cadangan tempat pelancongan di Terengganu?",
+        "Cadangan tempat pelancongan di Kelantan?",
+        "Cadangan tempat pelancongan di Kedah?",
+        "Cadangan tempat pelancongan di Perlis?",
+        "Cadangan tempat pelancongan di Perak?",
+        "Cadangan tempat pelancongan di Negeri Sembilan?",
+        "Cadangan tempat pelancongan di Ipoh?",
+        "Cadangan tempat pelancongan di Kuantan?",
+        "Cadangan tempat pelancongan di Kota Kinabalu?",
+        "Gunung tertinggi di Sabah?",
+        "Senarai Nama Pulau-pulau yang boleh snorkeling",
+        "Tempat menarik untuk bawa anak-anak?",
+        "Tempat bersejarah di George Town?",
+        "Aktiviti alam semula jadi di Pahang?",
+        "Apa yang boleh dibuat di Genting Highlands?",
+        "Apa tempat menarik di Johor Bahru?",
+        "Cadangan lokasi camping selamat?",
+        "Festival budaya di Malaysia?",
+        "Tempat menarik di Cameron Highlands?",
+        "Ada aktiviti eco-tourism di Sarawak?",
+        "Tempat percutian keluarga di Malaysia?",
+        "Apa pulau terbaik untuk diving?",
+        "Tempat heritage UNESCO di Malaysia?",
+        "Apakah zoo terbaik di Malaysia?",
+        "Ada taman tema air yang besar?",
+        "Tempat melihat matahari terbenam?",
+        "Apa yang menarik tentang Taman Negara?",
+        "Boleh ceritakan tentang Gunung Kinabalu?",
+        "Apakah aktiviti yang boleh dibuat di Langkawi Sky Bridge?",
+        "Apa yang boleh dilihat di Penang Hill?",
+        "Apa keistimewaan Mount Mulu?",
+        "Apa yang ada di Kuala Gandah Elephant Sanctuary?",
+        "Apakah jenis tempat Gua Tempurung?",
+        "Boleh jelaskan tentang Bako National Park?",
+        "Apakah Cameron Highlands sesuai untuk bercuti?",
+        "Tempat apa itu Sipadan Island?",
+        "Aktiviti menarik di Sunway Lagoon?",
+        "The Habitat Penang Hill ini tempat apa?",
+        "Nak tahu tentang Colmar Tropicale di mana?",
+        "Apa tarikan utama di Legoland Malaysia?",
+        "Batu Caves ni sesuai untuk pelancongan jenis apa?",
+        "Perhentian Island sesuai untuk aktiviti apa?",
+        "Ada apa di Kilim Geoforest Park?",
+        "Apa yang menarik di Sky Mirror Kuala Selangor?",
+        "Royal Belum State Park ini di negeri mana?",
+        "Di manakah terletaknya LEGOLAND Malaysia?",
+        "Ada apa di sekitar Jonker Street, Melaka?",
+        "Di manakah Muzium Islam Melaka terletak?",
+        "Apa yang boleh dilakukan di i-City Shah Alam?",
+        "Di manakah lokasi Menara Taming Sari?",
+        "Apakah tarikan utama di A Famosa Resort?",
+        "Apakah keistimewaan di Petrosains, KLCC?",
+        "Apa yang menarik di Lost World of Tambun, Perak?",
+        "Apakah aktiviti boleh dibuat di Bukit Bendera, Penang?",
+    ];
+
+    function renderSuggestions() {
+        const pool = [...suggestionPool];
+        const selected = [];
+
+        while (selected.length < 6 && pool.length > 0) {
+            const index = Math.floor(Math.random() * pool.length);
+            selected.push(pool.splice(index, 1)[0]);
+        }
+
+        const container = document.getElementById("suggestionPool");
+        container.innerHTML = "";
+        selected.forEach(q => {
+            const span = document.createElement("span");
+            span.textContent = q;
+            span.onclick = function () {
+                document.getElementById("userInput").value = q;
+                document.getElementById("userInput").focus();
+            };
+            container.appendChild(span);
+        });
+    }
+
+  function sendMessage() {
+    const input = $('#userInput');
+    const message = input.val().trim();
+    if (!message) return;
+
+    input.prop('disabled', true);
+    $('#sendBtn')
+    .prop('disabled', true)
+    .text('Please wait...')
+    .css({ backgroundColor: '#cc0000', color: '#fff' });
+
+
+    const chatBox = $('#chatBox');
+    const userId = `msg-${Date.now()}`;
+    chatBox.append(`<div class='message user' id='${userId}'><b>You:</b> <span class='user-text'>${message}</span></div>`);
+    input.val('');
+
+    const botTyping = $(`<div class='message bot typing'><b>MalaysiaTourBot:</b> <span class="loading-dots">...</span></div>`);
+    chatBox.append(botTyping);
+    chatBox.scrollTop(chatBox[0].scrollHeight);
+
+    $.ajax({
+        url: "/chat",
+        type: "POST",
+        data: JSON.stringify({ message }),
+        contentType: "application/json",
+        dataType: "json",
+        success: function (data) {
+            botTyping.remove();
+            chatBox.append(`<div class='message bot'><b>MalaysiaTourBot:</b> ${data.response}</div>`);
+        },
+        error: function (xhr) {
+            botTyping.remove();
+            const errorMsg = xhr.responseJSON?.error || "Unexpected error occurred.";
+            chatBox.append(`<div class='message bot'><b>Error:</b> ${errorMsg}</div>`);
+        },
+
+        complete: function () {
+            input.prop('disabled', false).focus();
+            $('#sendBtn')
+        .prop('disabled', false)
+        .text('Send')
+        .css({ backgroundColor: '#0077cc', color: '#fff' });
+
+        }
+    });
+}
+    function resetMemory() {
+        fetch('/reset', { method: 'POST' })
+            .then(() => {
+                $("#chatBox").html("");
+
+                $('#sendBtn')
+                .prop('disabled', false)
+                .text('Send')
+                .css({ backgroundColor: '#0077cc', color: '#fff' });
+
+                $('#userInput').prop('disabled', false).val('').focus();
+            });
+    }
+
+
+
+    document.getElementById("userInput").addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    renderSuggestions();
+
+</script>
+
+</body>
+</html>

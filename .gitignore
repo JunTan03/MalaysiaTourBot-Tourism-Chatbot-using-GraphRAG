@@ -1,0 +1,22 @@
+# Virtual Environment
+TNL/
+venv/
+env/
+
+# Flask temporary data
+flask_session/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Sensitive credentials
+.env

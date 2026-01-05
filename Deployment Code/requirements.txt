@@ -1,0 +1,10 @@
+neo4j
+torch
+Pillow
+transformers
+tqdm
+sentence-transformers
+groq
+langchain-google-genai
+flask-session
+python-dotenv
