@@ -66,4 +66,4 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ## Contributors
 * Multimedia University (MMU) - Faculty of Information Science and Technology
-* Ho Jun Wei, [How Shue Kei](https://github.com/shuekei), [Koay Xin Kuang](https://github.com/Faclorxin152), Tan Jun Chen
+* Ho Jun Wei, [How Shue Kei](https://github.com/shuekei), [Koay Xin Kuang](https://github.com/Faclorxin152), [Tan Jun Chen](https://github.com/JunTan03)
